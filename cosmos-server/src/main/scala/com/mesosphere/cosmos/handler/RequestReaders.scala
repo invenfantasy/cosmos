@@ -5,6 +5,7 @@ import com.mesosphere.cosmos.circe.{DispatchingMediaTypedEncoder, MediaTypedDeco
 import com.mesosphere.cosmos.http.FinchExtensions._
 import com.mesosphere.cosmos.http.{Authorization, MediaType, RequestSession}
 import io.finch._
+import shapeless.{::, HNil}
 
 object RequestReaders {
 
@@ -20,6 +21,14 @@ object RequestReaders {
     accepts: MediaTypedDecoder[Req],
     produces: DispatchingMediaTypedEncoder[Res]
   ): Endpoint[EndpointContext[Req, Res]] = {
+    val r = baseReader(produces)
+    val h = header("Content-Type").as[MediaType].should(beTheExpectedType(accepts.mediaType))
+    val b = body.as[Req](accepts.decoder, accepts.classTag)
+    val c = (r :: h :: b)
+    c.map {
+      case (reqSession, responseEncoder) :: _ :: req  :: HNil => EndpointContext(req, reqSession, responseEncoder)
+    }
+/* 
     for {
       (reqSession, responseEncoder) <- baseReader(produces)
       _ <- header("Content-Type").as[MediaType].should(beTheExpectedType(accepts.mediaType))
@@ -27,6 +36,7 @@ object RequestReaders {
     } yield {
       EndpointContext(req, reqSession, responseEncoder)
     }
+*/
   }
 
   private[this] def baseReader[Res](
