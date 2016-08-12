@@ -4,11 +4,12 @@ import com.mesosphere.cosmos.circe.{DispatchingMediaTypedEncoder, MediaTypedDeco
 import com.mesosphere.cosmos.http.{Authorization, MediaType, MediaTypes, RequestSession}
 import com.twitter.finagle.http.RequestBuilder
 import com.twitter.io.Buf
-import com.twitter.util.{Await, Return, Try}
+import com.twitter.util.{Await, Return, Try, Future}
 import io.circe.syntax._
 import io.circe.{Encoder, Json}
-import io.finch.RequestReader
+import io.finch.{RequestReader,Output,Input}
 import org.scalatest.FreeSpec
+import cats.Eval
 
 final class RequestReadersSpec extends FreeSpec {
 
@@ -86,7 +87,7 @@ final class RequestReadersSpec extends FreeSpec {
             MediaTypedEncoder(Encoder.instance[Int](_ => 2.asJson), MediaTypes.applicationJson)
           ))
           val Return((_, responseEncoder)) = runReader(produces = produces)
-          assertResult(Json.int(1))(responseEncoder.encoder(42))
+          assertResult(Json.fromInt(1))(responseEncoder.encoder(42))
         }
       }
     }
@@ -95,7 +96,7 @@ final class RequestReadersSpec extends FreeSpec {
       accept: Option[String] = Some(MediaTypes.applicationJson.show),
       authorization: Option[String] = None,
       produces: DispatchingMediaTypedEncoder[Res] = DispatchingMediaTypedEncoder(Seq(
-        MediaTypedEncoder(Encoder.instance[Res](_ => Json.empty), MediaTypes.applicationJson)
+        MediaTypedEncoder(Encoder.instance[Res](_ => Json.Null), MediaTypes.applicationJson)
       ))
     ): Try[(RequestSession, MediaTypedEncoder[Res])] = {
       val request = RequestBuilder()
@@ -103,14 +104,13 @@ final class RequestReadersSpec extends FreeSpec {
         .setHeader("Accept", accept.toSeq)
         .setHeader("Authorization", authorization.toSeq)
         .setHeader("Content-Type", MediaTypes.applicationJson.show)
-        .buildPost(Buf.Utf8(Json.empty.noSpaces))
+        .buildPost(Buf.Utf8(Json.Null.noSpaces))
 
       val reader = factory(produces)
-      Await.result(reader(request).liftToTry).map { context =>
-        (context.session, context.responseEncoder)
-      }
+      val res = reader(Input(request))
+      val context = unpack(res.get._2)
+      Return((context.session, context.responseEncoder))
     }
-
   }
 
 }
@@ -147,4 +147,9 @@ object RequestReadersSpec {
     }
   }
 
+  def unpack[A](result: Eval[Future[Output[A]]]): A = {
+    val future = result.value
+    val output = Await.result(future)
+    output.value
+  }
 }

@@ -26,33 +26,23 @@ object RequestReaders {
     val b = body.as[Req](accepts.decoder, accepts.classTag)
     val c = (r :: h :: b)
     c.map {
-      case (reqSession, responseEncoder) :: _ :: req  :: HNil => EndpointContext(req, reqSession, responseEncoder)
+      case (reqSession, responseEncoder) :: _ :: req :: HNil => EndpointContext(req, reqSession, responseEncoder)
     }
-/* 
-    for {
-      (reqSession, responseEncoder) <- baseReader(produces)
-      _ <- header("Content-Type").as[MediaType].should(beTheExpectedType(accepts.mediaType))
-      req <- body.as[Req](accepts.decoder, accepts.classTag)
-    } yield {
-      EndpointContext(req, reqSession, responseEncoder)
-    }
-*/
   }
 
   private[this] def baseReader[Res](
     produces: DispatchingMediaTypedEncoder[Res]
   ): Endpoint[(RequestSession, MediaTypedEncoder[Res])] = {
-    for {
-      responseEncoder <- header("Accept")
-        .as[MediaType]
-        .convert { accept =>
-          produces(accept)
-            .toRightXor(s"should match one of: ${produces.mediaTypes.map(_.show).mkString(", ")}")
-        }
-      auth <- headerOption("Authorization")
-    } yield {
-      (RequestSession(auth.map(Authorization(_))), responseEncoder)
+    val h = header("Accept")
+            .as[MediaType]
+            .convert { accept =>
+              produces(accept)
+                .toRightXor(s"should match one of: ${produces.mediaTypes.map(_.show).mkString(", ")}")
+            }
+    val a = headerOption("Authorization")
+    val c = h :: a 
+    c.map {
+      case responseEncoder :: auth :: HNil => (RequestSession(auth.map(Authorization(_))), responseEncoder)
     }
   }
-
 }
