@@ -108,7 +108,7 @@ final class RequestReadersSpec extends FreeSpec {
 
       val reader = factory(produces)
       val res = reader(Input(request))
-      val context = Try(unpack(res.get._2)).map { context => 
+      Try(unpack(res.get._2)).map { context => 
         (context.session, context.responseEncoder)
       }
     }
