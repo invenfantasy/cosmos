@@ -3,7 +3,7 @@ package com.mesosphere.cosmos.http
 import cats.data.Xor
 import com.mesosphere.cosmos.http.FinchExtensions.RequestReaderOps
 import com.twitter.finagle.http.Request
-import com.twitter.util.{Await, Future, Return, Throw}
+import com.twitter.util.{Await, Future, Return, Throw, Try}
 import io.finch.Error.NotValid
 import io.finch.items.RequestItem
 import io.finch.{Endpoint, items, Output, Input}
@@ -18,19 +18,19 @@ final class RequestReaderOpsSpec extends FreeSpec {
 
 
     "forward the success value from the function argument" in {
-      val result = request(true).convert(exampleFn)(DummyRequest)
+      val result = request(true).convert(exampleFn)(Input(DummyRequest)).get._2
       assertResult(())(unpack(result))
     }
 
     "wrap the failure message from the function argument in an exception" in {
-      val result = request(false).convert(exampleFn)(DummyRequest)
-      val Throw(NotValid(_, rule)) = Await.result(result.liftToTry)
+      val result = request(false).convert(exampleFn)(Input(DummyRequest))
+      val Throw(NotValid(_, rule)) = Try(unpack(result.get._2))
       assertResult("failure")(rule)
     }
 
     "include the item from the base reader in failures" in {
-      val result = request(false).convert(exampleFn)(DummyRequest)
-      val Throw(NotValid(item, _)) = Await.result(result.liftToTry)
+      val result = request(false).convert(exampleFn)(Input(DummyRequest))
+      val Throw(NotValid(item, _)) = Try(unpack(result.get._2))
       assertResult(items.BodyItem)(item)
     }
   }
