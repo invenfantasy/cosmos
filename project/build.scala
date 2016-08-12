@@ -15,7 +15,7 @@ object CosmosBuild extends Build {
     val bijection = "0.9.2"
     val circe = "0.5.0-M2"
     val curator = "2.9.1"
-    val finch = "0.11.0-M2"
+    val finch = "0.10.0"
     val finchServer = "0.9.1"
     val jsonSchema = "2.2.6"
     val logback = "1.1.3"
