@@ -2,7 +2,7 @@ package com.mesosphere.cosmos.http
 
 import cats.data.Xor
 import com.twitter.util.Future
-import io.finch.{Decode, Error, Endpoint, ValidationRule}
+import io.finch.{DecodeRequest, Error, RequestReader, ValidationRule}
 
 object FinchExtensions {
 
@@ -11,17 +11,17 @@ object FinchExtensions {
       MediaTypeOps.compatible(expected, actual)
     }
 
-  implicit val decodeMediaType: Decode[MediaType] = {
-    Decode.instance(s => MediaType.parse(s))
+  implicit val decodeMediaType: DecodeRequest[MediaType] = {
+    DecodeRequest.instance(s => MediaType.parse(s))
   }
 
-  implicit class RequestReaderOps[A](val rr: Endpoint[A]) extends AnyVal {
+  implicit class RequestReaderOps[A](val rr: RequestReader[A]) extends AnyVal {
 
-    /** Like [[io.finch.Endpoint.map]] but with the possibility of failure.
+    /** Like [[io.finch.RequestReader.map]] but with the possibility of failure.
       *
       * @param fn Converts `A` to `B`, or fails with a `String` error message
       */
-    def convert[B](fn: A => String Xor B): Endpoint[B] = {
+    def convert[B](fn: A => String Xor B): RequestReader[B] = {
       rr.embedFlatMap { a =>
         fn(a) match {
           case Xor.Right(b) => Future.value(b)

@@ -168,7 +168,7 @@ object PackageInstallHandler {
       .flatMap { json =>
         val topProperties =
           json("properties")
-            .getOrElse(Json.empty)
+            .getOrElse(Json.Null)
 
         filterDefaults(topProperties)
           .asObject
