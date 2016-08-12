@@ -8,7 +8,7 @@ import io.finch.Error.NotValid
 import io.finch.items.RequestItem
 import io.finch.{Endpoint, items, Output, Input}
 import org.scalatest.FreeSpec
-import cats.Eval
+import cats.{Eval,Now}
 
 final class RequestReaderOpsSpec extends FreeSpec {
 
@@ -42,8 +42,8 @@ object RequestReaderOpsSpec {
 
   private def request(bool: Boolean):Endpoint[Boolean] = {
     new Endpoint[Boolean] {
-      val item: RequestItem = items.BodyItem
-      def apply(req: Request): Future[Boolean] = Future.value(bool)
+      override val item: RequestItem = items.BodyItem
+      def apply(req: Input): Endpoint.Result[Boolean] = Some((req, Now(Future.value(Output.payload(bool)))))
     }
   }
 
