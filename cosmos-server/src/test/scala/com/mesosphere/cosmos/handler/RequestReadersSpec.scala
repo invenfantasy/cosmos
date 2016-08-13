@@ -7,7 +7,7 @@ import com.twitter.io.Buf
 import com.twitter.util.{Await, Return, Try, Future}
 import io.circe.syntax._
 import io.circe.{Encoder, Json}
-import io.finch.{RequestReader,Output,Input}
+import io.finch.{Endpoint,Output,Input}
 import org.scalatest.FreeSpec
 import cats.Eval
 
@@ -126,13 +126,13 @@ object RequestReadersSpec {
   trait RequestReaderFactory[Req] {
     def apply[Res](
       produces: DispatchingMediaTypedEncoder[Res]
-    ): RequestReader[EndpointContext[Req, Res]]
+    ): Endpoint[EndpointContext[Req, Res]]
   }
 
   object NoBodyReaderFactory extends RequestReaderFactory[Unit] {
     override def apply[Res](
       produces: DispatchingMediaTypedEncoder[Res]
-    ): RequestReader[EndpointContext[Unit, Res]] = {
+    ): Endpoint[EndpointContext[Unit, Res]] = {
       RequestReaders.noBody(produces)
     }
   }
@@ -140,7 +140,7 @@ object RequestReadersSpec {
   object StandardReaderFactory extends RequestReaderFactory[String] {
     override def apply[Res](
       produces: DispatchingMediaTypedEncoder[Res]
-    ): RequestReader[EndpointContext[String, Res]] = {
+    ): Endpoint[EndpointContext[String, Res]] = {
       RequestReaders.standard(
         accepts = MediaTypedDecoder.apply(MediaTypes.applicationJson),
         produces = produces
