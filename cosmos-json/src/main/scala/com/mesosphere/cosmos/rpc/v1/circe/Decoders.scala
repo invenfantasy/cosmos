@@ -13,7 +13,7 @@ import io.circe.{Decoder, HCursor}
 object Decoders {
 
   implicit val decodeVersionsMap: Decoder[Map[universe.v3.model.PackageDefinition.Version, universe.v3.model.PackageDefinition.ReleaseVersion]] = {
-    Decoder.decodeMapLike[Map, String, universe.v3.model.PackageDefinition.ReleaseVersion].map { stringKeys =>
+    Decoder.decodeMap[Map, universe.v3.model.PackageDefinition.ReleaseVersion].map { stringKeys =>
       stringKeys.map { case (versionString, releaseVersion) =>
         universe.v3.model.PackageDefinition.Version(versionString) -> releaseVersion
       }

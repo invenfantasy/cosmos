@@ -14,7 +14,7 @@ import io.circe.{Encoder, JsonObject, ObjectEncoder}
 object Encoders {
 
   implicit val encodeVersionsMap: Encoder[Map[universe.v3.model.PackageDefinition.Version, universe.v3.model.PackageDefinition.ReleaseVersion]] = {
-    Encoder.encodeMapLike[Map, String, universe.v3.model.PackageDefinition.ReleaseVersion].contramap { versions =>
+    Encoder.encodeMapLike[Map, universe.v3.model.PackageDefinition.ReleaseVersion].contramap { versions =>
       versions.map { case (packageVersion, releaseVersion) =>
           packageVersion.toString -> releaseVersion
       }

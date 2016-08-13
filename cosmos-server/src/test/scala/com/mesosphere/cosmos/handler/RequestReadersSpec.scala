@@ -87,7 +87,7 @@ final class RequestReadersSpec extends FreeSpec {
             MediaTypedEncoder(Encoder.instance[Int](_ => 2.asJson), MediaTypes.applicationJson)
           ))
           val Return((_, responseEncoder)) = runReader(produces = produces)
-          assertResult(Json.fromInt(1))(responseEncoder.encoder(42))
+          assertResult(Json.int(1))(responseEncoder.encoder(42))
         }
       }
     }
@@ -96,7 +96,7 @@ final class RequestReadersSpec extends FreeSpec {
       accept: Option[String] = Some(MediaTypes.applicationJson.show),
       authorization: Option[String] = None,
       produces: DispatchingMediaTypedEncoder[Res] = DispatchingMediaTypedEncoder(Seq(
-        MediaTypedEncoder(Encoder.instance[Res](_ => Json.Null), MediaTypes.applicationJson)
+        MediaTypedEncoder(Encoder.instance[Res](_ => Json.empty), MediaTypes.applicationJson)
       ))
     ): Try[(RequestSession, MediaTypedEncoder[Res])] = {
       val request = RequestBuilder()
@@ -104,7 +104,7 @@ final class RequestReadersSpec extends FreeSpec {
         .setHeader("Accept", accept.toSeq)
         .setHeader("Authorization", authorization.toSeq)
         .setHeader("Content-Type", MediaTypes.applicationJson.show)
-        .buildPost(Buf.Utf8(Json.Null.noSpaces))
+        .buildPost(Buf.Utf8(Json.empty.noSpaces))
 
       val reader = factory(produces)
       val res = reader(Input(request))

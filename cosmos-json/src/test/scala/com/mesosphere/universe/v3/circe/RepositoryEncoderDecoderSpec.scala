@@ -87,7 +87,7 @@ class RepositoryEncoderDecoderSpec extends FreeSpec {
 
     "decode error when package has unsupported packagingVersion" in {
       val json = Json.obj(
-        "packages" -> Json.arr(
+        "packages" -> Json.array(
           Json.obj(
             "packagingVersion" -> "3.1".asJson,
             "name" -> "bad-package".asJson,
@@ -108,7 +108,7 @@ class RepositoryEncoderDecoderSpec extends FreeSpec {
 
     "decode error when package has unsupported tag format" in {
       val json = Json.obj(
-        "packages" -> Json.arr(
+        "packages" -> Json.array(
           Json.obj(
             "packagingVersion" -> "3.0".asJson,
             "name" -> "bad-package".asJson,
@@ -130,7 +130,7 @@ class RepositoryEncoderDecoderSpec extends FreeSpec {
     "decode error when package has unsupported releaseVersion value" in {
       val releaseVersion = -1
       val json = Json.obj(
-        "packages" -> Json.arr(
+        "packages" -> Json.array(
           Json.obj(
             "packagingVersion" -> "3.0".asJson,
             "name" -> "bad-package".asJson,

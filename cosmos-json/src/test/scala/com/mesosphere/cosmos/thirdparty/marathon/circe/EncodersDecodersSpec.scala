@@ -15,7 +15,7 @@ class EncodersDecodersSpec extends FreeSpec {
     val relative: String = "cassandra/dcos"
     val absolute: String = s"/$relative"
     "encode" in {
-      assertResult(Json.fromString(absolute))(AppId(relative).asJson)
+      assertResult(Json.string(absolute))(AppId(relative).asJson)
     }
     "decode" in {
       val id = AppId(absolute)

@@ -21,7 +21,7 @@ class DcosReleaseVersionEncoderDecoderSpec extends FreeSpec {
       assertResult(obj)(decoded)
     }
     "encode" in {
-      assertResult(Json.fromString(str))(obj.asJson)
+      assertResult(Json.string(str))(obj.asJson)
     }
   }
 
