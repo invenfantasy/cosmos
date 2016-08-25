@@ -6,10 +6,9 @@ build: image
 image:
 	docker pull invenfantasy/cosmos:sy
 
-run: 
-	mkdir /tmp/cosmos
-	docker run --rm -it -v $(PWD):/cosmos --net=host invenfantasy/cosmos:sy java -jar \
-		cosmos-server/target/scala-2.11/cosmos-server_2.11-0.1.5-one-jar.jar \
+run:
+	mkdir -p /tmp/cosmos
+	java -jar cosmos-server/target/scala-2.11/cosmos-server_2.11-0.1.5-one-jar.jar \
 		-com.mesosphere.cosmos.dcosUri=http://10.132.47.122 \
 		-com.mesosphere.cosmos.zookeeperUri=zk://10.132.47.122:2181/cosmos \
 		-com.mesosphere.cosmos.dataDir=/tmp/cosmos
