@@ -15,6 +15,8 @@ import org.jboss.netty.handler.codec.http.HttpMethod
 class MarathonClient(marathonUri: Uri, client: Service[Request, Response]) extends ServiceClient(marathonUri) {
 
   def createApp(appJson: Json): Future[Response] = {
+    println("caogaojin:" + marathonUri.toString)
+    println("caogaojin:" + appJson.toString)
     client(post("v2" / "apps" , appJson))
   }
 
